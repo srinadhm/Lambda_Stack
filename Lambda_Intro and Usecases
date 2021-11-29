@@ -1,0 +1,283 @@
+Lambda
+############
+
+An IAM user has permanent long-term credentials and is used to directly interact with aws services.
+An IAM role does not have credentials and cannot make direct requests to AWS serivces.
+
+IAM roles are meant to be assumed by authorized entities,such as IAM users, applications or an AWS service such as EC2.
+
+what is more secure IAM user or IAM role ?
+
+Roles are essentially the same as users,but without the access keys or management console access this enables the user to request short-term credentials from AWS STS,
+which is more secure than attaching the permissions directly to the user's access keys.
+
+IAM roles defines the set of permissions for making AWS service request whereas IAM policies define the permissions that you will require.
+
+Lambda : AWS lambda is a serverless computing service that lets you run your code without provisioning or managing the servers 
+
+Usecase: 
+
+1.Stop the servers on weekends and start it back on weekdays apart from production serverless 
+
+for this we need to write a shell script or python script or some other 
+stopping
+starting
+
+we can schedule this script
+
+keep the code of script we need a scm or need a server to keep the script and run 
+
+2.we want to send notification when prod server stopped 
+
+3.we want to read a file when someone uploads a new file in amazon s3 (File Upload Processing) 
+
+4.API gateway Integration between s3 and dynamodb
+
+5.Serverless cronjobs scheduling lamnda fun with cloud watch (Schedule lambda fun using cloud watch)
+
+6.Event processing with Asynchronous programming/data with SQS and SNS (Lambda triggers sqs and sns)
+
+7.Glue logic for step fun workflows with amazon simple workflow service (SWF)
+
+Lambda fun can be written in 
+
+1.Java
+2.Python
+3.Ruby
+4.Go 
+5.Node.Js
+6. .NET Core
+
+For what purpose we are creating the lambda function
+
+Depending upon the usecase/purpose we need to create a IAM role/user for lambda.
+
+1.For example i want to start and stop servers for this one we need permissions AmazonEC2FullAccess for lambda to manage servers.
+
+2.For success or failure of lambda function we want to see the logs , logs will be available in cloud watch for this we need permissions CloudWatchFullAccess for cloud watch as well.
+
+
+1.Create IAM role for with permissions AmazonEC2FullAccess and CloudWatchFullAccess 
+2.Create a lambda function by selecting developing platform in which language we can written code and attach the IAM role we created or attach the policy for ec2 and cloud watch
+
+Lambda ----> Functions ----> Create function ----> Author from scratch ----> Basic information ----> 
+Function name : stop_instance (function name has to be given)
+
+Runtime : Python 3.9 (select programming language) 
+
+Architecture x86_64 (select intel or arm processor ) 
+
+Permissions Change default execution role 
+Create a new role with basic Lambda permissions
+Use an existing role
+Create a new role from AWS policy templates
+
+select the role we have created earlier 
+
+
+3.Write the code for starting/stopping instance
+
+for demo/reference create a instance id to stop the instance we need to get the instance ids of which are running 
+
+aws cli to stop the ec2 instance 
+
+aws ec2 stop-instances --instance-ids i-0f8669aee8b21fb32 
+
+along with aws cli aws has created a python library for managing ec2 infrastructure and all other aws serivces that is boto/boto3 library
+ 
+import boto3
+region = 'us-east-1'
+ec2 = boto3.client('ec2',region_name=region)
+instances = ['i-0f8669aee8b21fb32']
+
+def lambda_handler(event, context):
+    ec2.stop_instances(InstanceIds=instances)
+    print('stopped your instances: ' + str(instances))
+
+4.To save the changes Deploy 
+
+5.Test the function by creating event.
+
+If we want to stop/start instances other than Python boto3 we have to use AWS SDK to other programming langauges like node.js.
+
+6.Check the logs in CloudWatch
+
+CloudWatch ----> Logs ----> Log groups aws/lambda/stop_instance (lambda name will be shown here ) ----> Log streams
+
+2021/11/29/[$LATEST]e69b5802209446dc9645767bb8bb712e
+
+Timestamp
+Message
+No older events at this moment. 
+Retry
+
+2021-11-29T12:29:50.260+05:30	START RequestId: f60115ae-1b15-4beb-a4d2-084941d9f599 Version: $LATEST
+
+2021-11-29T12:29:50.931+05:30	stopped your instances: ['i-0f8669aee8b21fb32']
+
+2021-11-29T12:29:50.935+05:30	END RequestId: f60115ae-1b15-4beb-a4d2-084941d9f599
+
+2021-11-29T12:29:50.935+05:30	REPORT RequestId: f60115ae-1b15-4beb-a4d2-084941d9f599 Duration: 670.78 ms Billed Duration: 671 ms Memory Size: 128 MB Max Memory Used: 75 MB Init Duration: 368.62 ms
+
+##############################################################################################################
+
+
+
+How do I stop and start Amazon EC2 instances at regular intervals using Lambda?
+Last updated: 2021-02-15
+
+I want to reduce my Amazon Elastic Compute Cloud (Amazon EC2) usage by stopping and starting my EC2 instances automatically. How do I use AWS Lambda and Amazon CloudWatch Events to do that?
+Short description
+Note: This example setup is a simple solution. For a more robust solution, use the AWS Instance Scheduler. For more information, see How do I stop and start my instances using the AWS Instance Scheduler?
+
+To stop and start EC2 instances at regular intervals using Lambda, do the following:
+
+1.    Create a custom AWS Identity and Access Management (IAM) policy and execution role for your Lambda function.
+
+2.    Create Lambda functions that stop and start your EC2 instances.
+
+3.    Test your Lambda functions.
+
+4.    Create CloudWatch Events rules that trigger your function on a schedule.
+Note: You can also create rules that trigger on an event that takes place in your AWS account.
+
+Or, you can use the AWS CloudFormation template provided at the end of this article to automate the procedure.
+
+Resolution
+Note: If you receive a Client error on launch error after completing the following procedure, follow the steps outlined in this Client error on launch troubleshooting article.
+
+Get the IDs of the EC2 instances that you want to stop and start. Then, do the following.
+
+Create an IAM policy and execution role for your Lambda function
+1.    Create an IAM policy using the JSON policy editor. Copy and paste the following JSON policy document into the policy editor:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Start*",
+        "ec2:Stop*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+2.    Create an IAM role for Lambda.
+
+Important: When attaching a permissions policy to Lambda, make sure that you choose the IAM policy you just created.
+
+Create Lambda functions that stop and start your EC2 instances
+1.    In the AWS Lambda console, choose Create function.
+
+2.    Choose Author from scratch.
+
+3.    Under Basic information, add the following:
+For Function name, enter a name that identifies it as the function used to stop your EC2 instances. For example, "StopEC2Instances".
+For Runtime, choose Python 3.8.
+Under Permissions, expand Choose or create an execution role.
+Under Execution role, choose Use an existing role.
+Under Existing role, choose the IAM role that you created.
+
+4.    Choose Create function.
+
+5.    Under Function code, copy and paste the following code into the editor pane in the code editor (lambda_function). This code stops the EC2 instances that you identify.
+
+Example function code—stopping EC2 instances
+
+import boto3
+region = 'us-west-1'
+instances = ['i-12345cb6de4f78g9h', 'i-08ce9b2d7eccf6d26']
+ec2 = boto3.client('ec2', region_name=region)
+
+def lambda_handler(event, context):
+    ec2.stop_instances(InstanceIds=instances)
+    print('stopped your instances: ' + str(instances))
+Important: For region, replace "us-west-1" with the AWS Region that your instances are in. For instances, replace the example EC2 instance IDs with the IDs of the specific instances that you want to stop and start.
+
+6.    Under Basic settings, set Timeout to 10 seconds.
+
+Note: Configure the Lambda function settings as needed for your use case. For example, if you want to stop and start multiple instances, you might need a different value for Timeout and Memory.
+
+7.    Choose Deploy.
+
+8.    Repeat steps 1-7 to create another function. Do the following differently so that this function starts your EC2 instances:
+In step 3, enter a different Function name than the one you used before. For example, "StartEC2Instances".
+In step 5, copy and paste the following code into the editor pane in the code editor (lambda_function):
+
+Example function code—starting EC2 instances
+
+import boto3
+region = 'us-west-1'
+instances = ['i-12345cb6de4f78g9h', 'i-08ce9b2d7eccf6d26']
+ec2 = boto3.client('ec2', region_name=region)
+
+def lambda_handler(event, context):
+    ec2.start_instances(InstanceIds=instances)
+    print('started your instances: ' + str(instances))
+Important: For region and instances , use the same values that you used for the code to stop your EC2 instances.
+
+Test your Lambda functions
+1.    In the AWS Lambda console, choose Functions.
+
+2.    Choose one of the functions that you created.
+
+3.    Choose Test.
+
+4.    In the Configure test event dialog box, choose Create new test event.
+
+5.    Enter an Event name. Then, choose Create.
+
+Note: You don't need to change the JSON code for the test event—the function doesn't use it.
+
+6.    Choose Test to run the function.
+
+7.    Repeat steps 1-6 for the other function that you created.
+
+Tip: You can check the status of your EC2 instances before and after testing to confirm that your functions work as expected.
+
+Create CloudWatch Events rules that trigger your Lambda functions
+1.    Open the Amazon CloudWatch console.
+
+2.    In the left navigation pane, under Events, choose Rules.
+
+3.    Choose Create rule.
+
+4.    Under Event Source, choose Schedule.
+
+5.    Do either of the following:
+For Fixed rate of, enter an interval of time in minutes, hours, or days.
+For Cron expression, enter an expression that tells Lambda when to stop your instances. For information on expression syntax, see Schedule expressions for rules.
+Note: Cron expressions are evaluated in UTC. Make sure that you adjust the expression for your preferred time zone.
+
+6.    Under Targets, choose Add target.
+
+7.    Choose Lambda function.
+
+8.    For Function, choose the function that stops your EC2 instances.
+
+9.    Choose Configure details.
+
+10.    Under Rule definition, do the following:
+For Name, enter a name to identify the rule, such as "StopEC2Instances".
+(Optional) For Description, describe your rule. For example, "Stops EC2 instances every night at 10 PM."
+For State, choose the Enabled check box.
+
+11.    Choose Create rule.
+
+12.    Repeat steps 1-11 to create a rule to start your EC2 instances. Do the following differently:
+In step 5, for Cron expression, enter an expression that tells Lambda when to start your instances.
+In step 8, for Function, choose the function that starts your EC2 instances.
+In step 10, under Rule definition, enter a Name, such as "StartEC2Instances".
+(Optional) Enter a Description, such as "Starts EC2 instances every morning at 7 AM."
+
