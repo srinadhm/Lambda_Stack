@@ -1,0 +1,52 @@
+#################################
+
+Schedule the lambda function 
+
+To schedule lambda function we need to use cloud watch
+
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
+
+CloudWatch ----> Events ----> Rules ----> 
+
+1.Create rule ----> Create rules to invoke Targets based on Events happening in your AWS environment.
+2.Event Source ----> Schedule (Build or customize an Event Pattern or set a Schedule to invoke Targets.)
+Fixed rate of (for every 5 or 10 minutes )
+Cron expression 
+
+45 7 * * ? *
+
+Targets (Select Target to invoke when an event matches your Event Pattern or when schedule is triggered.)
+
+Lambda function 
+stop_instance ( function name have to select which fun we need to schedule )
+
+Step 2: Configure rule details
+
+Rule definition
+
+Name*	: stop-ec2-instance
+Description	: stop-ec2-instance
+Enabled Select 
+
+Based on the schedule time once the lambda function invokes we can see logs in Logs ----> Log groups ---> Log events
+
+Timestamp
+Message
+No older events at this moment. 
+Retry
+
+2021-11-29T13:15:25.676+05:30	START RequestId: 38f2ab68-7c6f-4047-b184-b5217a474c96 Version: $LATEST
+
+2021-11-29T13:15:26.570+05:30	stopped your instances: ['i-0f8669aee8b21fb32']
+
+2021-11-29T13:15:26.571+05:30	END RequestId: 38f2ab68-7c6f-4047-b184-b5217a474c96
+
+2021-11-29T13:15:26.571+05:30	REPORT RequestId: 38f2ab68-7c6f-4047-b184-b5217a474c96 Duration: 894.63 ms Billed Duration: 895 ms Memory Size: 128 MB Max Memory Used:
+
+
+
+Minutes	Hours	Day of month	Month	Day of week	Year
+
+9am ?
+
+00 09 * * ? 2021
