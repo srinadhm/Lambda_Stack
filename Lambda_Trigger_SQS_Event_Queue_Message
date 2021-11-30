@@ -1,0 +1,28 @@
+import json
+
+def lambda_handler(event, context):
+    print(event)
+    print(event['Records'][0]['body'])
+    # TODO implement
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
+
+Event output 
+
+{'Records': [{'messageId': 'ee055a19-f7a0-41f4-b5fe-abcf1ec6202a', 'receiptHandle': 'AQEBjqfWfIDnl6Xl3LdcE3yc/jJTII4SRFTHRDdzGCBhbBjJ4HOjOImpEpEUCGNJi6cE7G4J2oUmKd/rhm9yRyTzvf+kGAOm1DlkCWOuvZkvbbUf8JKWJTn+Iqe/DCUsKP2ptWBf52SYQV5k2CsUnzepbSK6tAGU27w6hHz1037VrJW9js9MYuuQYyGhl+Gj5mZDIO4uIMjh5thdpTQ2EibS9njoRnksQWPRL+Hg57ZPLKlvfVxYY4w6hHnN6S1oPvmd5sNlP3fB5aI/+BLJcvzT2yHPDJKfPebslhOKbPVS7cVtpg8RCHmG0ARCS8kpndbuYvCvNvkRTNmZwJry1uQW/qRxZV4XOFfl4UzJHiBqzOdmaw3AB6uLwPltONdPIjwOD+YDDcnfiCTDdpNUWDn1OA==', 'body': '{\n  "empname": "srinadh",\n  "empid": "22240",\n  "empsalary": "666666",\n  "experience": "10 years"\n}', 'attributes': {'ApproximateReceiveCount': '1', 'SentTimestamp': '1638260147796', 'SenderId': '421168438563', 'ApproximateFirstReceiveTimestamp': '1638260147821'}, 'messageAttributes': {}, 'md5OfBody': 'd5d78e60d503278729fd3ca401483398', 'eventSource': 'aws:sqs', 'eventSourceARN': 'arn:aws:sqs:us-east-1:421168438563:EventProcessing', 'awsRegion': 'us-east-1'}]}
+
+Queue Message :
+
+{
+
+	"empname": "srinadh",
+
+	"empid": "22240",
+
+	"empsalary": "666666",
+
+	"experience": "10 years"
+
+	}
